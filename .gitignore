@@ -8,3 +8,7 @@ __pycache__/
 dist/
 build/
 .eggs/
+
+# CHP session artifacts (local only)
+.chp_registry.json
+.chp/sessions/
