@@ -9,8 +9,22 @@ from __future__ import annotations
 import json
 import urllib.request
 import urllib.parse
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 from typing import Optional
+
+from cubiczan_resilience import resilient
+
+
+@resilient(timeout=20, max_attempts=3)
+def _fetch_json(url: str, timeout: int = 20) -> dict:
+    """Fetch and parse a JSON response with timeout + retry-with-backoff.
+
+    Wrapped with @resilient so transient network failures on external
+    market-data APIs are retried (3 attempts, exponential backoff + jitter)
+    instead of silently yielding stale prices.
+    """
+    with urllib.request.urlopen(url, timeout=timeout) as resp:
+        return json.loads(resp.read().decode("utf-8"))
 
 
 # Default battery material price table (USD/kg unless noted)
@@ -62,7 +76,10 @@ def update_prices_from_alpha_vantage(
         mappings: {material_name: AV_function} e.g. {"nickel": "NICKEL"}
 
     Returns:
-        {"updated": {mat: new_price}, "unchanged": [...], "errors": [...]}
+        {"updated": {mat: new_price}, "unchanged": [...], "errors": [...],
+         "as_of": <ISO-8601 UTC fetch time>, "price_freshness": <same>}
+        Callers MUST check ``as_of`` to reject stale data before feeding
+        prices into BOM cost rollups.
     """
     if mappings is None:
         mappings = {
@@ -97,8 +114,7 @@ def update_prices_from_alpha_vantage(
         url = f"https://www.alphavantage.co/query?{urllib.parse.urlencode(params)}"
 
         try:
-            with urllib.request.urlopen(url, timeout=20) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
+            data = _fetch_json(url, timeout=20)
             if "Note" in data:
                 result["errors"].append(f"{material_name}: AV rate limited")
                 continue
@@ -126,6 +142,11 @@ def update_prices_from_alpha_vantage(
         except Exception as e:
             result["errors"].append(f"{material_name}: {e}")
 
+    # Stamp the fetch time so callers can detect/reject stale data before it
+    # feeds into BOM cost rollups.
+    _now = datetime.now(timezone.utc).isoformat()
+    result["as_of"] = _now
+    result["price_freshness"] = _now
     return result
 
 
@@ -138,6 +159,10 @@ def update_prices_from_fred(
     Not direct commodity prices, but useful for context:
     - DGS10 (10Y Treasury) — discount rate for NPV
     - PPIACO (PPI All Commodities) — inflation gauge
+
+    Returns a dict including top-level ``as_of`` / ``price_freshness``
+    (ISO-8601 UTC fetch time) so callers can detect and reject stale data.
+    External calls are wrapped with retry-with-backoff (3 attempts).
     """
     series_map = {
         "DGS10": "10-Year Treasury Yield",
@@ -153,8 +178,7 @@ def update_prices_from_fred(
             f"&file_type=json&sort_order=desc&limit=1"
         )
         try:
-            with urllib.request.urlopen(url, timeout=15) as resp:
-                data = json.loads(resp.read().decode("utf-8"))
+            data = _fetch_json(url, timeout=15)
             obs = data.get("observations", [])
             if obs:
                 value = float(obs[0].get("value", 0))
@@ -165,6 +189,11 @@ def update_prices_from_fred(
         except Exception as e:
             result["errors"].append(f"FRED {series_id}: {e}")
 
+    # Top-level fetch-time stamp so callers can reject stale macro data
+    # (the per-series ``as_of`` above is the observation date, not fetch time).
+    _now = datetime.now(timezone.utc).isoformat()
+    result["as_of"] = _now
+    result["price_freshness"] = _now
     return result
 
 
