@@ -33,7 +33,7 @@ material, supplier, and price point.
 ```bash
 git clone https://codeberg.org/cubiczan/battery-erp.git
 cd battery-erp
-pip install pytest
+pip install -r requirements.txt pytest
 
 # Run all 32 tests
 PYTHONPATH=src pytest tests/ -v
