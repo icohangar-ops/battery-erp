@@ -2,12 +2,19 @@ __pycache__/
 *.pyc
 *.pyo
 .pytest_cache/
+.ipynb_checkpoints/
 .env
 .venv/
+venv/
 *.egg-info/
 dist/
 build/
 .eggs/
+.coverage
+coverage/
+htmlcov/
+*.log
+.DS_Store
 
 # CHP session artifacts (local only)
 .chp_registry.json
