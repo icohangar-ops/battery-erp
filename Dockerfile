@@ -1,6 +1,9 @@
-# Glama MCP introspection (https://glama.ai/mcp/servers)
-# Stdio inventory tools — no ports. Paste into Glama Dockerfile admin
-# if the crawler does not auto-detect this file on main.
+# Glama MCP introspection reference
+# Glama's hosted builder uses debian:trixie-slim + uv (see PUBLISH.md).
+# Working Glama form build steps:
+#   uv venv /app/.venv --python /usr/local/bin/python
+#   uv pip install --python /app/.venv/bin/python ".[mcp]"
+# CMD: ["/app/.venv/bin/python", "-m", "battery_erp.mcp"]
 
 FROM python:3.12-slim
 
@@ -13,7 +16,6 @@ COPY docs ./docs
 RUN pip install --no-cache-dir -e '.[mcp]' \
   && pip cache purge || true
 
-# Read tools work without a real confirm token; mutating tool stays gated.
 ENV BATTERY_ERP_CONFIRM_TOKEN=glama-introspect-only
 ENV PYTHONUNBUFFERED=1
 
