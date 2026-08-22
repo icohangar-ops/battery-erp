@@ -1,1 +1,6 @@
+# Core domain library has no hard runtime deps beyond the stdlib.
+# Optional adapters (install via pyproject extras):
+#   pip install -e '.[api]'   # FastAPI REST for text-line / SMS backends
+#   pip install -e '.[mcp]'   # MCP server for agents / operators
+#   pip install -e '.[dev]'   # pytest + api + mcp
 cubiczan-resilience @ git+https://github.com/icohangar-ops/cubiczan-resilience.git#subdirectory=python

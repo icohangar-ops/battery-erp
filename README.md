@@ -7,7 +7,7 @@
 
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Tests](https://img.shields.io/badge/tests-32%20passing-brightgreen)](tests/)
+[![Tests](https://img.shields.io/badge/tests-48%2B%20passing-brightgreen)](tests/)
 [![Fabric](https://img.shields.io/badge/Microsoft-Fabric-0078D4)](https://fabric.microsoft.com)
 
 ---
@@ -175,12 +175,103 @@ Reporting:
 
 ---
 
+## Inventory adapters (REST + MCP)
+
+Battery ERP is a **domain library**, not a hosted ERP. For SMS / text-line and
+agent workflows, a shared `InventoryService` sits under both a thin REST API and
+an MCP server. Full detail: **[docs/INTEGRATION.md](docs/INTEGRATION.md)**.
+
+```
+SMS / ClickSend          Cursor / Claude (stdio MCP)
+        │                         │
+        ▼                         ▼
+  REST API (port 8088)      battery_erp.mcp
+        └──────────┬──────────────┘
+                   ▼
+           InventoryService
+                   ▼
+        InMemoryInventoryStore (demo)
+                   ▼
+          Human bin confirmation
+```
+
+**Do not** call MCP from a browser. Keep **REST** and **MCP** in separate terminals.
+
+### Install (macOS / zsh)
+
+Use `python3`. Quote pip extras so zsh does not glob them:
+
+```bash
+cd ~/Desktop/icohangar-repos/battery-erp
+python3 -m pip install -e '.[dev]'   # api + mcp + pytest
+```
+
+### Terminal A — REST (text-line backend)
+
+```bash
+cd ~/Desktop/icohangar-repos/battery-erp
+export BATTERY_ERP_CONFIRM_TOKEN=dev-secret
+export BATTERY_ERP_AUDIT_LOG=/tmp/battery-erp-audit.jsonl
+PYTHONPATH=src python3 -m battery_erp.api
+# Uvicorn → http://127.0.0.1:8088
+```
+
+```bash
+curl -s http://127.0.0.1:8088/health
+curl -s http://127.0.0.1:8088/inventory/lookup/lithium
+```
+
+### Terminal B — MCP (agents / Cursor only)
+
+Leave Terminal A running. In a **new** terminal:
+
+```bash
+cd ~/Desktop/icohangar-repos/battery-erp
+export BATTERY_ERP_CONFIRM_TOKEN=dev-secret
+PYTHONPATH=src python3 -m battery_erp.mcp
+```
+
+That process stays quiet on stdio — normal for MCP hosts. Do not paste this into the API terminal.
+
+### Cursor MCP config
+
+Add to `~/.cursor/mcp.json` (absolute paths; `python3` not `python`):
+
+```json
+{
+  "mcpServers": {
+    "battery-erp": {
+      "command": "python3",
+      "args": ["-m", "battery_erp.mcp"],
+      "env": {
+        "PYTHONPATH": "/Users/YOU/Desktop/icohangar-repos/battery-erp/src",
+        "BATTERY_ERP_CONFIRM_TOKEN": "replace-me",
+        "BATTERY_ERP_AUDIT_LOG": "/tmp/battery-erp-audit.jsonl"
+      }
+    }
+  }
+}
+```
+
+Then reload MCP servers in Cursor. Tools exposed: `lookup_inventory`,
+`get_inventory_status`, `get_inventory_record`, `list_inventory`,
+`create_bin_check_request`, `record_bin_confirmation`.
+
+| Surface | Entry | Shared layer |
+|---|---|---|
+| REST | `GET /inventory/lookup/{part}`, bin-check / bin-confirm | `battery_erp.services.InventoryService` |
+| MCP | tools above (mcp SDK 2.x `MCPServer`) | same |
+
+Mutating bin confirmation requires `BATTERY_ERP_CONFIRM_TOKEN` and optionally
+writes JSONL audit to `BATTERY_ERP_AUDIT_LOG`.
+
+---
+
 ## Tests
 
 ```bash
-PYTHONPATH=src pytest tests/ -v
-# 32 tests passing: models, BOM costing, inventory, supplier scoring,
-#                    price analytics, cost scenarios, pack metrics, reports
+PYTHONPATH=src python3 -m pytest tests/ -v
+# Domain tests + inventory service / REST / MCP scaffold
 ```
 
 ---
