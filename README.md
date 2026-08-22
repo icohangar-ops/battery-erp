@@ -6,6 +6,7 @@
 # supplier scoring, inventory management, and what-if cost scenarios.
 
 [![Python](https://img.shields.io/badge/python-3.10%2B-blue)](https://www.python.org/)
+[![PyPI](https://img.shields.io/pypi/v/battery-erp)](https://pypi.org/project/battery-erp/)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 [![Tests](https://img.shields.io/badge/tests-48%2B%20passing-brightgreen)](tests/)
 [![Fabric](https://img.shields.io/badge/Microsoft-Fabric-0078D4)](https://fabric.microsoft.com)
