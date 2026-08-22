@@ -265,6 +265,10 @@ Then reload MCP servers in Cursor. Tools exposed: `lookup_inventory`,
 Mutating bin confirmation requires `BATTERY_ERP_CONFIRM_TOKEN` and optionally
 writes JSONL audit to `BATTERY_ERP_AUDIT_LOG`.
 
+Directory / registry packaging: see **[PUBLISH.md](PUBLISH.md)** (`glama.json`,
+`Dockerfile`, `server.json`). After merge to `main`, claim on Glama as
+`@icohangar-ops/battery-erp`.
+
 ---
 
 ## Tests
