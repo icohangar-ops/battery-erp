@@ -326,5 +326,15 @@ cognitive-mesh-orchestrator 0.1.0 | [Protocol Docs](https://codeberg.org/cubicza
 
 ## Demo
 
+### Handheld — Parts Bin Text Line
+
+Mobile capture from the live lead page
+([parts-bin-text-line--icohangar.replit.app](https://parts-bin-text-line--icohangar.replit.app/)).
+SMS → text-line → Battery ERP inventory check → human bin confirm.
+
+<p align="center">
+  <img src="docs/media/parts-bin-handheld.png" alt="Parts Bin Text Line handheld demo" width="360" />
+</p>
+
 [![Demo Video](https://img.shields.io/badge/Watch_Demo-3min-blue)](docs/media/battery-erp-demo.mp4)
 
