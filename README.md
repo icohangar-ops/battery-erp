@@ -32,15 +32,18 @@ material, supplier, and price point.
 ## Quick start
 
 ```bash
-git clone https://codeberg.org/cubiczan/battery-erp.git
+# From PyPI — https://pypi.org/project/battery-erp/
+python3 -m pip install 'battery-erp[mcp]'   # MCP tools
+python3 -m pip install 'battery-erp[api]'   # REST adapter
+
+# From source
+git clone https://github.com/icohangar-ops/battery-erp.git
 cd battery-erp
-pip install -r requirements.txt pytest
+python3 -m pip install -e '.[dev]'
+PYTHONPATH=src python3 -m pytest tests/ -v
 
-# Run all 32 tests
-PYTHONPATH=src pytest tests/ -v
-
-# Use the modules
-PYTHONPATH=src python3 -c "
+# Domain modules
+python3 -c "
 from battery_erp.pricing import calculate_cell_cost_summary, get_material_price_table
 prices = get_material_price_table()
 for chem in ['NMC-811', 'NMC-622', 'NCA', 'LFP', 'LMO']:
