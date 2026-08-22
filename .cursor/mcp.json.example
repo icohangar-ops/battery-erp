@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "battery-erp": {
+      "command": "python3",
+      "args": ["-m", "battery_erp.mcp"],
+      "env": {
+        "PYTHONPATH": "/Users/cubiczan/Desktop/icohangar-repos/battery-erp/src",
+        "BATTERY_ERP_CONFIRM_TOKEN": "dev-secret",
+        "BATTERY_ERP_AUDIT_LOG": "/tmp/battery-erp-audit.jsonl"
+      }
+    }
+  }
+}

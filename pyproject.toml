@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "battery-erp"
+version = "0.1.0"
+description = "Battery value-chain ERP domain library with optional inventory REST + MCP adapters"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [{ name = "icohangar-ops" }]
+dependencies = []
+
+[project.optional-dependencies]
+api = ["fastapi>=0.115", "uvicorn>=0.30", "pydantic>=2.0"]
+mcp = ["mcp>=2.0"]
+dev = ["pytest>=7.0", "battery-erp[api,mcp]"]
+
+[project.scripts]
+battery-erp-api = "battery_erp.api.app:main"
+battery-erp-mcp = "battery_erp.mcp.server:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
