@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "battery-erp"
-version = "0.1.0"
+version = "0.1.1"
 description = "Battery value-chain ERP domain library with optional inventory REST + MCP adapters"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "MIT" }
+license = "MIT"
 authors = [{ name = "icohangar-ops" }]
 dependencies = []
 

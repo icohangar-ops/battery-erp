@@ -11,6 +11,8 @@
 [![Tests](https://img.shields.io/badge/tests-48%2B%20passing-brightgreen)](tests/)
 [![Fabric](https://img.shields.io/badge/Microsoft-Fabric-0078D4)](https://fabric.microsoft.com)
 
+mcp-name: io.github.icohangar-ops/battery-erp
+
 ---
 
 ## What this is
