@@ -14,9 +14,14 @@ COPY src ./src
 COPY docs ./docs
 
 RUN pip install --no-cache-dir -e '.[mcp]' \
-  && pip cache purge || true
+  && pip cache purge || true \
+  && groupadd --system --gid 10001 app \
+  && useradd --system --uid 10001 --gid app --home-dir /app --no-create-home --shell /usr/sbin/nologin app
 
 ENV BATTERY_ERP_CONFIRM_TOKEN=glama-introspect-only
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+
+USER 10001
 
 CMD ["python", "-m", "battery_erp.mcp"]
